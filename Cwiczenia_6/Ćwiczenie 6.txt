@@ -1,0 +1,87 @@
+Ćwiczenie 6
+
+====== OPERACJE NA DANYCH =====
+-- UPDATE ksiegowosc.pracownicy
+-- a
+-- SET telefon = CONCAT('(+48)', telefon)  
+-- b dwa sposoby
+-- SET telefon = CONCAT(SUBSTRING(telefon,1,9), '-', SUBSTRING(telefon,10, 3),'-',SUBSTRING(telefon,13,3)); 
+-- SET telefon = SUBSTRING(telefon, 1, 9) || '-' || SUBSTRING(telefon, 10, 3) || '-' || SUBSTRING(telefon, 13, 3);
+-- select telefon from ksiegowosc.pracownicy;
+-- select * from ksiegowosc.pracownicy
+
+-- c
+-- SELECT UPPER(imie) AS imię, UPPER(nazwisko) AS nazwisko, id_pracownika, adres, telefon, 
+--   FROM ksiegowosc.pracownicy 
+--   ORDER BY LENGTH(nazwisko) DESC 
+
+-- d
+-- SELECT imie, nazwisko, p.id_pracownika, adres, telefon, MD5( CAST( kwota as varchar(100))) as pensja
+-- FROM ksiegowosc.pracownicy p
+-- JOIN ksiegowosc.wynagrodzenie w ON p.id_pracownika = w.id_pracownika
+-- JOIN ksiegowosc.pensje k ON k.id_pensji = w.id_pensji; 
+
+-- e
+-- SELECT imie, nazwisko, p.id_pracownika, adres, telefon, s.kwota as premia, k.kwota as pensja
+-- FROM ksiegowosc.pracownicy p
+-- JOIN ksiegowosc.wynagrodzenie w ON p.id_pracownika = w.id_pracownika
+-- LEFT JOIN ksiegowosc.pensje k ON k.id_pensji = w.id_pensji
+-- LEFT JOIN ksiegowosc.premie s ON s.id_premii = w.id_premii; 
+
+-- f
+-- SELECT
+--   'Pracownik ' || imie || ' ' || nazwisko || ', w dniu ' || g.data ||
+--   ' otrzymał pensję całkowitą na kwotę ' || s.kwota+k.kwota || ' zł, gdzie wynagrodzenie zasadnicze wynosiło: ' ||
+--   k.kwota || ' zł, premia: ' || s.kwota || ' zł' AS raport
+-- FROM ksiegowosc.pracownicy p
+-- JOIN ksiegowosc.wynagrodzenie w ON p.id_pracownika = w.id_pracownika
+-- JOIN ksiegowosc.godziny g ON g.id_godziny = w.id_godziny
+-- JOIN ksiegowosc.pensje k ON k.id_pensji = w.id_pensji
+-- JOIN ksiegowosc.premie s ON s.id_premii = w.id_premii;
+
+===== NORMALIZACJA ======
+++TABELA 1++
+CREATE TABLE wizyty.pracownicy (
+    id_pracownika VARCHAR(10) PRIMARY KEY,
+    imie VARCHAR(20) NOT NULL,
+    nazwisko VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE wizyty.pacjenci (
+    id_pacjenta VARCHAR(10) PRIMARY KEY,
+    imie VARCHAR(20) NOT NULL,
+    nazwisko VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE wizyty.zabiegi (
+    id_zabiegu VARCHAR(10) PRIMARY KEY,
+    nazwa_zabiegu VARCHAR(100)
+);
+
+CREATE TABLE wizyty.wizyty (
+    id_wizyty SERIAL PRIMARY KEY,
+    id_pracownika VARCHAR(10) REFERENCES wizyty.pracownicy(id_pracownika),
+    id_pacjenta VARCHAR(10) REFERENCES wizyty.pacjenci(id_pacjenta),
+    id_zabiegu VARCHAR(10) REFERENCES wizyty.zabiegi(id_zabiegu),
+    data_godzina_wizyty TIMESTAMP
+);
+
+++ TABELA 2 ++
+CREATE TABLE Produkty (
+    id_produktu SERIAL PRIMARY KEY,
+    nazwa_produktu VARCHAR(100) NOT NULL,
+    cena_brutto money NOT NULL,
+    cena_netto money NOT NULL
+);
+
+CREATE TABLE Dostawcy (
+    id_dostawcy SERIAL PRIMARY KEY,
+    nazwa_dostawcy VARCHAR(100) NOT NULL,
+    adres_dostawcy VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE DostawyProduktow (
+    id_dostawy_produktu SERIAL PRIMARY KEY,
+    id_produktu INT REFERENCES Produkty(ProduktID),
+    id_dostawcy INT REFERENCES Dostawcy(DostawcaID),
+);
