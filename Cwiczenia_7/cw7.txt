@@ -1,0 +1,64 @@
+--1		
+	--funkcja fibonacci
+-- CREATE OR REPLACE FUNCTION fibonacci(f integer) RETURNS SETOF integer LANGUAGE SQL AS $$
+-- WITH RECURSIVE t(a, b, i) 
+-- AS 
+-- (
+--     SELECT 0, 1, 1
+--     UNION ALL
+--     SELECT b, a + b, i + 1
+--     FROM t
+--     WHERE i < f
+-- )
+-- SELECT a FROM t;
+-- $$;
+
+
+-- CREATE OR REPLACE PROCEDURE do_fibonacci(n INT) LANGUAGE plpgsql AS $$
+-- DECLARE
+--     fibonacci_sequence INT[];
+--     val INT;
+-- BEGIN
+--     FOR val IN SELECT * FROM fibonacci(n) 
+--         LOOP
+--             RAISE NOTICE 'F %', val;
+--         END LOOP;
+-- END;
+-- $$;
+
+-- CALL do_fibonacci(40);
+
+
+-- 2
+-- CREATE TRIGGER capitalize_lastname_trigger
+-- BEFORE INSERT OR UPDATE
+-- ON person.person
+-- FOR EACH ROW
+--     NEW.lastname := UPPER(NEW.lastname);
+--     RETURN NEW;
+	
+
+-- 3
+
+CREATE OR REPLACE FUNCTION check_tax_change()
+RETURNS TRIGGER AS $$
+DECLARE
+    old_tax NUMERIC;
+    new_tax NUMERIC;
+    rate_change NUMERIC;
+BEGIN
+    old_tax := OLD.taxRate;
+    new_tax := NEW.taxRate;
+    rate_change := ((new_tax - old_tax) / old_tax) * 100;
+    IF ABS(rate_change) > 30 
+	THEN
+        RAISE EXCEPTION 'Zmiana przekracza 30%%!!';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE SQL;
+
+CREATE TRIGGER taxRateCheck
+BEFORE UPDATE ON sales.salestaxrate
+FOR EACH ROW
+EXECUTE FUNCTION check_tax_change();
