@@ -1,1 +1,1 @@
-Ćwiczenia z baz danych, zadane przez prowadzącego
+Schematy baz danych, notacja chena, microsoft access, tworzenie baz danych w sql oraz tworzenie zaawansowanych zapytań.
