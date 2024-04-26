@@ -1,1 +1,1 @@
-# BD_1_GR_5_Jablonski_Filip
+Ćwiczenia z baz danych, zadane przez prowadzącego
